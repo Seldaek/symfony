@@ -92,6 +92,41 @@ class PrototypedArrayNodeTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * Tests that when a key attribute is mapped, that key is not removed from the Yaml:
+     *
+     *     things:
+     *         id: 42
+     *         foo: bar
+     *
+     * The above should finally be mapped to an array that looks like this
+     * (because "id" is the key attribute but this is not XML).
+     *
+     *     array(
+     *         'things' => array(
+     *             'id' => 42,
+     *             'foo' => 'bar',
+     *         )
+     *     )
+     */
+    public function testMappedAttributeKeyIsOnlyRemovedForXml()
+    {
+        $node = new PrototypedArrayNode('root');
+        $node->setKeyAttribute('id', true);
+
+        // each item under the root is an array, with one scalar item
+        $prototype= new ArrayNode(null, $node);
+        $prototype->addChild(new ScalarNode('id'));
+        $prototype->addChild(new ScalarNode('foo'));
+        $node->setPrototype($prototype);
+
+        $children = array();
+        $children[] = array('id' => '42', 'foo' => 'bar');
+        $normalized = $node->normalize($children);
+
+        $this->assertEquals($children, $normalized);
+    }
+
+    /**
      * Tests the opposite of the testMappedAttributeKeyIsRemoved because
      * the removal can be toggled with an option.
      */
