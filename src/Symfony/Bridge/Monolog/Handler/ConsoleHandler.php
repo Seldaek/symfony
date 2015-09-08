@@ -120,7 +120,11 @@ class ConsoleHandler extends AbstractProcessingHandler implements EventSubscribe
      */
     public function onCommand(ConsoleCommandEvent $event)
     {
-        $this->setOutput($event->getOutput());
+        if ($event->getOutput() instanceof ConsoleOutputInterface) {
+            $this->setOutput($event->getOutput()->getErrorOutput());
+        } else {
+            $this->setOutput($event->getOutput());
+        }
     }
 
     /**
@@ -149,11 +153,7 @@ class ConsoleHandler extends AbstractProcessingHandler implements EventSubscribe
      */
     protected function write(array $record)
     {
-        if ($record['level'] >= Logger::ERROR && $this->output instanceof ConsoleOutputInterface) {
-            $this->output->getErrorOutput()->write((string) $record['formatted']);
-        } else {
-            $this->output->write((string) $record['formatted']);
-        }
+        $this->output->write((string) $record['formatted']);
     }
 
     /**
