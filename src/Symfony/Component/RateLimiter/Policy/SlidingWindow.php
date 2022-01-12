@@ -92,10 +92,6 @@ final class SlidingWindow implements LimiterStateInterface
      */
     public function getExpirationTime(): ?int
     {
-        if ($this->cached) {
-            return null;
-        }
-
         return 2 * $this->intervalInSeconds;
     }
 
